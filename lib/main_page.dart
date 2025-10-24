@@ -1,8 +1,12 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:note_app/habits/database/habbit_database.dart';
 import 'package:note_app/habits/pages/home_page.dart';
 import 'package:note_app/pages/notes_page.dart';
 import 'package:note_app/pages/add_or_edit_note_page.dart';
+import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -13,7 +17,7 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _currentIndex = 0;
-  final List<Widget> _pages = const [
+  final List<Widget> _pages = [
     NotesPage(),
     SizedBox(), // index 1 (Add button)
     HomePage(),
@@ -21,41 +25,52 @@ class _MainPageState extends State<MainPage> {
 
   void _onItemTapped(int index) {
     if (index == 1) {
-      // Tombol Add ditekan -> buka AddOrEditNotePage dengan animasi seperti updateNote
-      Navigator.of(context).push(
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 400),
-          pageBuilder: (context, animation, secondaryAnimation) =>
-              const AddOrEditNotePage(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            // Animasi masuk (halaman baru)
-            final newPageAnimation =
-                Tween<Offset>(
-                  begin: const Offset(1.0, 0.0), // dari kanan
-                  end: Offset.zero,
-                ).animate(
-                  CurvedAnimation(parent: animation, curve: Curves.easeInOut),
-                );
+      // tombol Add ditekan
+      if (_currentIndex == 0) {
+        // jika sedang di halaman Notes
+        Navigator.of(context).push(
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 400),
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const AddOrEditNotePage(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  final newPageAnimation =
+                      Tween<Offset>(
+                        begin: const Offset(1.0, 0.0),
+                        end: Offset.zero,
+                      ).animate(
+                        CurvedAnimation(
+                          parent: animation,
+                          curve: Curves.easeInOut,
+                        ),
+                      );
 
-            // Animasi keluar (halaman lama sedikit geser ke kiri)
-            final oldPageAnimation =
-                Tween<Offset>(
-                  begin: Offset.zero,
-                  end: const Offset(-0.3, 0.0),
-                ).animate(
-                  CurvedAnimation(
-                    parent: secondaryAnimation,
-                    curve: Curves.easeInOut,
-                  ),
-                );
+                  final oldPageAnimation =
+                      Tween<Offset>(
+                        begin: Offset.zero,
+                        end: const Offset(-0.3, 0.0),
+                      ).animate(
+                        CurvedAnimation(
+                          parent: secondaryAnimation,
+                          curve: Curves.easeInOut,
+                        ),
+                      );
 
-            return SlideTransition(
-              position: oldPageAnimation,
-              child: SlideTransition(position: newPageAnimation, child: child),
-            );
-          },
-        ),
-      );
+                  return SlideTransition(
+                    position: oldPageAnimation,
+                    child: SlideTransition(
+                      position: newPageAnimation,
+                      child: child,
+                    ),
+                  );
+                },
+          ),
+        );
+      } else if (_currentIndex == 2) {
+        // jika sedang di halaman Habits
+        _openAddHabit(context);
+      }
     } else {
       setState(() {
         _currentIndex = index;
@@ -72,60 +87,54 @@ class _MainPageState extends State<MainPage> {
       extendBody: true,
       body: _pages[_currentIndex == 1 ? 0 : _currentIndex],
       bottomNavigationBar: Padding(
-        padding: const EdgeInsets.only(bottom: 28.0),
+        padding: const EdgeInsets.only(bottom: 20.0),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(28),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              height: 70,
-              margin: const EdgeInsets.symmetric(horizontal: 38),
-              decoration: BoxDecoration(
-                color: (isDark
+          child: Container(
+            height: 70,
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
+              color: (isDark
+                  ? colorScheme.inversePrimary.withOpacity(0.8)
+                  : colorScheme.inversePrimary.withOpacity(0.8)),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                color: isDark
                     ? colorScheme
                           .inversePrimary //Colors.white.withOpacity(0.02)
                     : colorScheme
-                          .inversePrimary), //Colors.black.withOpacity(0.02))
-                //.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(32),
-                border: Border.all(
-                  color: isDark
-                      ? colorScheme
-                            .inversePrimary //Colors.white.withOpacity(0.1)
-                      : colorScheme
-                            .inversePrimary, //Colors.black.withOpacity(0.1),
-                  width: 1.2,
+                          .inversePrimary, //Colors.black.withOpacity(0.02)
+                width: 1.2,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildNavItem(
+                  index: 0,
+                  isDark: isDark,
+                  colorScheme: colorScheme,
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildNavItem(
-                    index: 0,
-                    isDark: isDark,
-                    colorScheme: colorScheme,
-                  ),
-                  _addButton(context, colorScheme, isDark),
-                  _buildNavItem(
-                    index: 2,
-                    isDark: isDark,
-                    colorScheme: colorScheme,
-                  ),
-                ],
-                // children: [
-                //   _navItem(
-                //     icon: Icons.sticky_note_2_rounded,
-                //     index: 0,
-                //     colorScheme: colorScheme,
-                //   ),
-                //   _addButton(context, colorScheme, isDark),
-                //   _navItem(
-                //     icon: Icons.track_changes_rounded,
-                //     index: 2,
-                //     colorScheme: colorScheme,
-                //   ),
-                // ],
-              ),
+                _addButton(context, colorScheme, isDark),
+                _buildNavItem(
+                  index: 2,
+                  isDark: isDark,
+                  colorScheme: colorScheme,
+                ),
+              ],
+              // children: [
+              //   _navItem(
+              //     icon: Icons.sticky_note_2_rounded,
+              //     index: 0,
+              //     colorScheme: colorScheme,
+              //   ),
+              //   _addButton(context, colorScheme, isDark),
+              //   _navItem(
+              //     icon: Icons.track_changes_rounded,
+              //     index: 2,
+              //     colorScheme: colorScheme,
+              //   ),
+              // ],
             ),
           ),
         ),
@@ -254,7 +263,13 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surface,
-        title: const Text("Add New Habit"),
+        title: Text(
+          "Add New Habit",
+          style: GoogleFonts.satisfy(
+            fontSize: 30,
+            color: Theme.of(context).colorScheme.inversePrimary,
+          ),
+        ),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(hintText: "Enter habit name"),
@@ -265,12 +280,18 @@ class _MainPageState extends State<MainPage> {
               controller.clear();
               Navigator.pop(context);
             },
-            child: const Text("Cancel"),
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.inversePrimary,
+              ),
+            ),
           ),
-          ElevatedButton(
-            onPressed: () {
+          TextButton(
+            onPressed: () async {
               final habitName = controller.text.trim();
               if (habitName.isNotEmpty) {
+                await context.read<HabbitDatabase>().addHabit(habitName);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text('Habit "$habitName" added!'),
@@ -281,7 +302,13 @@ class _MainPageState extends State<MainPage> {
               controller.clear();
               Navigator.pop(context);
             },
-            child: const Text("Save"),
+            child: Text(
+              "Save",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.inversePrimary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),

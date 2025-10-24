@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:note_app/components/drawer.dart';
 import 'package:note_app/habits/components/my_habit_tile.dart';
 import 'package:note_app/habits/components/my_heat_map.dart';
@@ -31,48 +30,48 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController textController = TextEditingController();
 
   // create new habit
-  void createNewHabit() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        content: TextField(
-          controller: textController,
-          decoration: const InputDecoration(hintText: "Create a new habit"),
-        ),
-        actions: [
-          // save button
-          MaterialButton(
-            onPressed: () {
-              // get the new habit name
-              String newHabitName = textController.text;
+  // void createNewHabit() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       content: TextField(
+  //         controller: textController,
+  //         decoration: const InputDecoration(hintText: "Create a new habit"),
+  //       ),
+  //       actions: [
+  //         // save button
+  //         MaterialButton(
+  //           onPressed: () {
+  //             // get the new habit name
+  //             String newHabitName = textController.text;
 
-              // save to db
-              context.read<HabbitDatabase>().addHabit(newHabitName);
+  //             // save to db
+  //             context.read<HabbitDatabase>().addHabit(newHabitName);
 
-              // pop box
-              Navigator.pop(context);
+  //             // pop box
+  //             Navigator.pop(context);
 
-              // clear controller
-              textController.clear();
-            },
-            child: const Text('Save'),
-          ),
+  //             // clear controller
+  //             textController.clear();
+  //           },
+  //           child: const Text('Save'),
+  //         ),
 
-          // cancel button
-          MaterialButton(
-            onPressed: () {
-              // pop box
-              Navigator.pop(context);
+  //         // cancel button
+  //         MaterialButton(
+  //           onPressed: () {
+  //             // pop box
+  //             Navigator.pop(context);
 
-              // clear controller
-              textController.clear();
-            },
-            child: const Text('Cancel'),
-          ),
-        ],
-      ),
-    );
-  }
+  //             // clear controller
+  //             textController.clear();
+  //           },
+  //           child: const Text('Cancel'),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   // check habit on & off
   void checkHabitOnOff(bool? value, Habit habit) {
@@ -92,6 +91,22 @@ class _HomePageState extends State<HomePage> {
       builder: (context) => AlertDialog(
         content: TextField(controller: textController),
         actions: [
+          // cancel button
+          MaterialButton(
+            onPressed: () {
+              // pop box
+              Navigator.pop(context);
+
+              // clear controller
+              textController.clear();
+            },
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.inversePrimary,
+              ),
+            ),
+          ),
           // save button
           MaterialButton(
             onPressed: () {
@@ -110,20 +125,16 @@ class _HomePageState extends State<HomePage> {
               // clear controller
               textController.clear();
             },
-            child: const Text('Save'),
+            child: Text(
+              'Save',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.inversePrimary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
 
           // cancel button
-          MaterialButton(
-            onPressed: () {
-              // pop box
-              Navigator.pop(context);
-
-              // clear controller
-              textController.clear();
-            },
-            child: const Text('Cancel'),
-          ),
         ],
       ),
     );
@@ -134,8 +145,28 @@ class _HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Are you sure you want to delete?"),
+        title: Text(
+          'Delete Habit',
+          style: GoogleFonts.satisfy(
+            fontSize: 30,
+            color: Theme.of(context).colorScheme.inversePrimary,
+          ),
+        ),
+        content: const Text('Are you sure you want to delete this habit?'),
         actions: [
+          // cancel button
+          MaterialButton(
+            onPressed: () {
+              // pop box
+              Navigator.pop(context);
+            },
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.inversePrimary,
+              ),
+            ),
+          ),
           // delete button
           MaterialButton(
             onPressed: () {
@@ -145,16 +176,10 @@ class _HomePageState extends State<HomePage> {
               // pop box
               Navigator.pop(context);
             },
-            child: const Text('Delete'),
-          ),
-
-          // cancel button
-          MaterialButton(
-            onPressed: () {
-              // pop box
-              Navigator.pop(context);
-            },
-            child: const Text('Cancel'),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -164,17 +189,17 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        title: Text(
-          "Welcome Back!",
-          style: GoogleFonts.montserrat(
-            textStyle: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+        // title: Text(
+        //   "Welcome Back!",
+        //   style: GoogleFonts.montserrat(
+        //     textStyle: const TextStyle(
+        //       fontSize: 20,
+        //       fontWeight: FontWeight.bold,
+        //     ),
+        //   ),
+        // ),
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -201,7 +226,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           // H E A T M A P
           _buildHeatMap(),
-
+          SizedBox(height: 12),
           // H A B I T L I S T
           _buildHabitList(),
         ],
@@ -255,6 +280,7 @@ class _HomePageState extends State<HomePage> {
 
         // return habit tile UI
         return MyHabitTile(
+          // key: ValueKey(habit.id),
           text: habit.name,
           isCompleted: isCompletedToday,
           onChanged: (value) => checkHabitOnOff(value, habit),
