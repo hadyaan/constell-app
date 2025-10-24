@@ -22,23 +22,26 @@ class MyHabitTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
       child: Slidable(
-        endActionPane: ActionPane(motion: const StretchMotion(), children: [
-          // edit option
-          SlidableAction(
-            onPressed: editHabit,
-            backgroundColor: Colors.grey.shade800,
-            icon: Icons.settings,
-            borderRadius: BorderRadius.circular(8),
-          ),
+        endActionPane: ActionPane(
+          motion: const StretchMotion(),
+          children: [
+            // edit option
+            SlidableAction(
+              onPressed: editHabit,
+              backgroundColor: Colors.grey.shade800,
+              icon: Icons.settings,
+              borderRadius: BorderRadius.circular(8),
+            ),
 
-          // delete option
-          SlidableAction(
-            onPressed: deleteHabit,
-            backgroundColor: Colors.red,
-            icon: Icons.delete,
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ]),
+            // delete option
+            SlidableAction(
+              onPressed: deleteHabit,
+              backgroundColor: Colors.red,
+              icon: Icons.delete,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ],
+        ),
         child: GestureDetector(
           onTap: () {
             if (onChanged != null) {
@@ -49,10 +52,14 @@ class MyHabitTile extends StatelessWidget {
           // habit tile
           child: Container(
             decoration: BoxDecoration(
+              border: Border.all(
+                color: Theme.of(context).colorScheme.secondary,
+                width: 2.0,
+              ),
               color: isCompleted
-                  ? Colors.brown
-                  : Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.circular(8),
+                  ? Theme.of(context).colorScheme.secondary
+                  : Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
             ),
             padding: const EdgeInsets.all(12),
             child: ListTile(
@@ -60,9 +67,10 @@ class MyHabitTile extends StatelessWidget {
               title: Text(
                 text,
                 style: TextStyle(
-                    color: isCompleted
-                        ? Colors.white
-                        : Theme.of(context).colorScheme.inversePrimary),
+                  color: isCompleted
+                      ? Theme.of(context).colorScheme.inversePrimary
+                      : Theme.of(context).colorScheme.inversePrimary,
+                ),
               ),
 
               // checkbox
